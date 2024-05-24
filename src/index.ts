@@ -7,9 +7,11 @@ export interface Env {
 import home from './home.html';
 
 export class ChatRoom {
-	state: DurableObjectState;
-	constructor(state: DurableObjectState, env: Env) {
-		this.state = state;
+	users: WebSocket[];
+	messages: string[];
+	constructor() {
+		this.users = [];
+		this.messages = [];
 	}
 	handleHome() {
 		return new Response(home, {
@@ -23,16 +25,21 @@ export class ChatRoom {
 			status: 404,
 		});
 	}
-	handleConnect(request: Request) {
+	handleConnect() {
 		const pairs = new WebSocketPair();
 		this.handleWebSocket(pairs[1]);
 		return new Response(null, { status: 101, webSocket: pairs[0] });
 	}
 	handleWebSocket(webSocket: WebSocket) {
 		webSocket.accept();
-		setTimeout(() => {
-			webSocket.send(JSON.stringify({ message: 'Hello from backend!' }));
-		}, 3000);
+		this.users.push(webSocket);
+		webSocket.send(JSON.stringify({ message: 'Hello from backend!' }));
+		this.messages.forEach((message) => webSocket.send(message));
+		webSocket.addEventListener('message', (event) => {
+			console.log(event.data.toString());
+			this.messages.push(event.data.toString());
+			this.users.forEach((user) => user.send(event.data));
+		});
 	}
 	async fetch(request: Request) {
 		const { pathname } = new URL(request.url);
@@ -40,7 +47,7 @@ export class ChatRoom {
 			case '/':
 				return this.handleHome();
 			case '/connect':
-				return this.handleConnect(request);
+				return this.handleConnect();
 			default:
 				return this.handleNotFound();
 		}
