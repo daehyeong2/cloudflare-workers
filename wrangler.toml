@@ -10,7 +10,7 @@ kv_namespaces = [
 
 [durable_objects]
 bindings = [
-    {name = "COUNTER", class_name="CounterObject"}
+    {name = "CHAT", class_name="ChatRoom"}
 ]
 
 # Automatically place your workloads in an optimal location to minimize latency.
