@@ -8,6 +8,11 @@ kv_namespaces = [
     { binding = "DB", id = "084cc77c0d0a49a4a74cd43be08f2213", preview_id = "279896c0880a4efb83114b046d3a53d7" }
 ]
 
+[durable_objects]
+bindings = [
+    {name = "COUNTER", class_name="CounterObject"}
+]
+
 # Automatically place your workloads in an optimal location to minimize latency.
 # If you are running back-end logic in a Worker, running it closer to your back-end infrastructure
 # rather than the end user may result in better performance.
